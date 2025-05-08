@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalles del Préstamo{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Detalles del Préstamo</h2>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h4>Información del Libro</h4>
+                <dl class="row">
+                    <dt class="col-sm-4">Título</dt>
+                    <dd class="col-sm-8">{{ prestamo.libro.titulo }}</dd>
+
+                    <dt class="col-sm-4">Autor</dt>
+                    <dd class="col-sm-8">{{ prestamo.libro.autor }}</dd>
+
+                    <dt class="col-sm-4">Editorial</dt>
+                    <dd class="col-sm-8">{{ prestamo.libro.editorial }}</dd>
+                </dl>
+            </div>
+
+            <div class="col-md-6">
+                <h4>Información del Préstamo</h4>
+                <dl class="row">
+                    <dt class="col-sm-4">Usuario</dt>
+                    <dd class="col-sm-8">{{ prestamo.usuario.username }}</dd>
+
+                    <dt class="col-sm-4">Estado</dt>
+                    <dd class="col-sm-8">
+                        {% if prestamo.estado == 'PENDIENTE' %}
+                            <span class="badge bg-warning text-dark">Pendiente</span>
+                        {% elif prestamo.estado == 'APROBADO' %}
+                            <span class="badge bg-primary">Activo</span>
+                        {% elif prestamo.estado == 'DEVUELTO' %}
+                            <span class="badge bg-success">Devuelto</span>
+                        {% elif prestamo.estado == 'RECHAZADO' %}
+                            <span class="badge bg-danger">Rechazado</span>
+                        {% elif prestamo.estado == 'VENCIDO' %}
+                            <span class="badge bg-danger">Vencido</span>
+                        {% endif %}
+                    </dd>
+
+                    {% if prestamo.fecha_solicitud %}
+                        <dt class="col-sm-4">Fecha Solicitud</dt>
+                        <dd class="col-sm-8">{{ prestamo.fecha_solicitud|date:"d/m/Y" }}</dd>
+                    {% endif %}
+
+                    {% if prestamo.fecha_aprobacion %}
+                        <dt class="col-sm-4">Fecha Aprobación</dt>
+                        <dd class="col-sm-8">{{ prestamo.fecha_aprobacion|date:"d/m/Y" }}</dd>
+                    {% endif %}
+
+                    {% if prestamo.fecha_devolucion_esperada %}
+                        <dt class="col-sm-4">Fecha Devolución Esperada</dt>
+                        <dd class="col-sm-8">{{ prestamo.fecha_devolucion_esperada|date:"d/m/Y" }}</dd>
+                    {% endif %}
+
+                    {% if prestamo.fecha_devolucion_real %}
+                        <dt class="col-sm-4">Fecha Devolución Real</dt>
+                        <dd class="col-sm-8">{{ prestamo.fecha_devolucion_real|date:"d/m/Y" }}</dd>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            {% if prestamo.estado == 'PENDIENTE' and request.user.is_admin or request.user.is_superadmin %}
+                <a href="{% url 'prestamos:aprobar_prestamo' prestamo.id %}" class="btn btn-success">Aprobar Préstamo</a>
+                <a href="{% url 'prestamos:rechazar_prestamo' prestamo.id %}" class="btn btn-danger">Rechazar Préstamo</a>
+            {% endif %}
+
+            {% if prestamo.estado == 'APROBADO' and request.user.is_admin or request.user.is_superadmin or prestamo.usuario == request.user %}
+                <a href="{% url 'prestamos:devolver_prestamo' prestamo.id %}" class="btn btn-primary">Registrar Devolución</a>
+            {% endif %}
+
+            <a href="{% url 'prestamos:lista_prestamos' %}" class="btn btn-outline-secondary">Volver a la Lista</a>
+        </div>
+
+        {% if prestamo.notas %}
+            <div class="mt-4">
+                <h4>Notas</h4>
+                <p>{{ prestamo.notas }}</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

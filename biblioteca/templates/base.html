@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Biblioteca{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome para iconos -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    {% load static %}
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+    <style>
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .toast {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            margin-bottom: 10px;
+            min-width: 250px;
+            animation: slideIn 0.3s ease-in-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .toast.success { border-left: 4px solid #198754; }
+        .toast.error { border-left: 4px solid #dc3545; }
+        .toast.warning { border-left: 4px solid #ffc107; }
+        .toast.info { border-left: 4px solid #0dcaf0; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'libros:lista' %}">Biblioteca</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'libros:lista' %}">
+                            <i class="fas fa-book"></i> Libros
+                        </a>
+                    </li>
+                    {% if request.user.is_authenticated %}
+                        {% if not request.user.is_admin and not request.user.is_superadmin %}
+                            <li class="nav-item">
+                                <a class="nav-link active" href="{% url 'prestamos:mis_prestamos' %}">
+                                    <i class="fas fa-list-alt"></i> Mis Préstamos
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link active" href="{% url 'prestamos:cliente_historial_prestamos' %}">
+                                    <i class="fas fa-history"></i> Historial de Préstamos
+                                </a>
+                            </li>
+                        {% endif %}
+                        {% if request.user.is_admin or request.user.is_superadmin %}
+                            <li class="nav-item">
+                                <a class="nav-link active" href="{% url 'prestamos:lista_prestamos' %}">
+                                    <i class="fas fa-exchange-alt"></i> Gestionar Préstamos
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link active" href="{% url 'libros:gestionar_crear' %}">
+                                    <i class="fas fa-plus-circle"></i> Añadir Libro
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link active" href="{% url 'usuarios:registrar_admin' %}">
+                                    <i class="fas fa-users"></i> Registrar Administrador
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link active" href="{% url 'usuarios:lista_usuarios' %}">
+                                    <i class="fas fa-user-cog"></i> Gestionar Usuarios
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+                <ul class="navbar-nav">
+                    {% if request.user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'usuarios:perfil' %}">
+                                <i class="fas fa-user"></i> {{ request.user.username }}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'usuarios:logout' %}">
+                                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'usuarios:login' %}">
+                                <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'usuarios:registro' %}">
+                                <i class="fas fa-user-plus"></i> Registrarse
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <div class="toast-container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="toast {{ message.tags }} show" role="alert">
+                    <div class="toast-header">
+                        <strong class="me-auto">
+                            {% if message.tags == 'success' %}
+                                <i class="fas fa-check-circle text-success"></i> Éxito
+                            {% elif message.tags == 'error' or message.tags == 'danger' %}
+                                <i class="fas fa-exclamation-circle text-danger"></i> Error
+                            {% elif message.tags == 'warning' %}
+                                <i class="fas fa-exclamation-triangle text-warning"></i> Advertencia
+                            {% else %}
+                                <i class="fas fa-info-circle text-info"></i> Información
+                            {% endif %}
+                        </strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                    </div>
+                    <div class="toast-body">
+                        {{ message }}
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% load static %}
+    <script src="{% static 'js/main.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var toasts = document.querySelectorAll('.toast');
+            toasts.forEach(function(toast) {
+                // Inicializar el toast de Bootstrap
+                var bsToast = new bootstrap.Toast(toast, {
+                    autohide: true,
+                    delay: 3000
+                });
+                bsToast.show();
+
+                // Eliminar el toast del DOM después de ocultarse
+                toast.addEventListener('hidden.bs.toast', function() {
+                    toast.remove();
+                });
+            });
+        });
+    </script>
+</body>
+</html>

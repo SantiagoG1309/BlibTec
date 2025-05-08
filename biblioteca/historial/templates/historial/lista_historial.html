@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}Historial{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2>Historial de Actividades</h2>
+        {% if tipo_entidad and entidad_id %}
+            <a href="{% url 'historial:lista_historial' %}" class="btn btn-outline-primary">Ver Todo el Historial</a>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Usuario</th>
+                        <th>Entidad</th>
+                        <th>Acción</th>
+                        <th>Estado</th>
+                        <th>Detalles</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for registro in registros %}
+                        <tr>
+                            <td>{{ registro.fecha|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if user.is_staff and registro.usuario %}
+                                    <a href="{% url 'historial:historial_por_entidad' 'USUARIO' registro.usuario.id %}">
+                                        {{ registro.usuario.username }}
+                                    </a>
+                                {% else %}
+                                    {{ registro.usuario.username|default:"Desconocido" }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if registro.tipo_entidad == 'LIBRO' and registro.entidad %}
+                                    <a href="{% url 'historial:historial_por_entidad' 'LIBRO' registro.entidad.id %}">
+                                        {{ registro.entidad.titulo }}
+                                    </a>
+                                {% elif registro.tipo_entidad == 'PRESTAMO' and registro.entidad %}
+                                    <a href="{% url 'historial:historial_por_entidad' 'PRESTAMO' registro.entidad.id %}">
+                                        Préstamo #{{ registro.entidad.id }}
+                                    </a>
+                                {% elif registro.tipo_entidad == 'USUARIO' and registro.entidad %}
+                                    <a href="{% url 'historial:historial_por_entidad' 'USUARIO' registro.entidad.id %}">
+                                        {{ registro.entidad.username }}
+                                    </a>
+                                {% else %}
+                                    {{ registro.tipo_entidad }} #{{ registro.entidad_id }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if registro.tipo_accion == 'creacion' %}
+                                    <span class="badge bg-primary">Creación</span>
+                                {% elif registro.tipo_accion == 'modificacion' %}
+                                    <span class="badge bg-warning">Modificación</span>
+                                {% elif registro.tipo_accion == 'eliminacion' %}
+                                    <span class="badge bg-danger">Eliminación</span>
+                                {% elif registro.tipo_accion == 'cambio_estado' %}
+                                    <span class="badge bg-info">Cambio de Estado</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if registro.estado_anterior and registro.estado_nuevo %}
+                                    <span class="badge bg-secondary">{{ registro.estado_anterior }} → {{ registro.estado_nuevo }}</span>
+                                {% elif registro.estado_anterior %}
+                                    <span class="badge bg-secondary">{{ registro.estado_anterior }}</span>
+                                {% elif registro.estado_nuevo %}
+                                    <span class="badge bg-secondary">{{ registro.estado_nuevo }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ registro.detalles }}
+                                {% if registro.prestamo %}
+                                    <a href="{% url 'prestamos:detalle_prestamo' registro.prestamo.id %}" class="btn btn-sm btn-info">
+                                        Ver Préstamo
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">No hay registros en el historial.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if is_paginated %}
+            <nav aria-label="Navegación de páginas" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                                Anterior
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                                Siguiente
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

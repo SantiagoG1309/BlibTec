@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Historial de Préstamos{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Historial de Préstamos</h2>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Libro</th>
+                        <th>Acción</th>
+                        <th>Estado Anterior</th>
+                        <th>Estado Nuevo</th>
+                        <th>Detalles</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for registro in registros %}
+                        <tr>
+                            <td>{{ registro.fecha|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if registro.entidad.libro %}
+                                    {{ registro.entidad.libro.titulo }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if registro.tipo_accion == 'creacion' %}
+                                    <span class="badge bg-primary">Creación</span>
+                                {% elif registro.tipo_accion == 'modificacion' %}
+                                    <span class="badge bg-warning">Modificación</span>
+                                {% elif registro.tipo_accion == 'eliminacion' %}
+                                    <span class="badge bg-danger">Eliminación</span>
+                                {% elif registro.tipo_accion == 'cambio_estado' %}
+                                    <span class="badge bg-info">Cambio de Estado</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ registro.estado_anterior|default:"N/A" }}</td>
+                            <td>{{ registro.estado_nuevo|default:"N/A" }}</td>
+                            <td>{{ registro.detalles }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">No hay historial de préstamos.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if is_paginated %}
+            <nav aria-label="Navegación de páginas" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                                Anterior
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                                Siguiente
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,13 @@
+aldjemy
+asgiref
+Django
+django-crispy-forms
+django-filter
+greenlet
+python-dotenv
+SQLAlchemy
+sqlparse
+typing_extensions
+tzdata
+whitenoise
+gunicorn

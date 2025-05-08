@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Préstamos{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Préstamos</h2>
+    </div>
+    <div class="card-body">
+        <ul class="nav nav-tabs mb-3" id="prestamosTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="activos-tab" data-bs-toggle="tab" data-bs-target="#activos" type="button" role="tab">
+                    Préstamos Activos
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pendientes-tab" data-bs-toggle="tab" data-bs-target="#pendientes" type="button" role="tab">
+                    Solicitudes Pendientes
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="prestamosTabsContent">
+            <div class="tab-pane fade show active" id="activos" role="tabpanel">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Libro</th>
+                                <th>Usuario</th>
+                                <th>Fecha Préstamo</th>
+                                <th>Fecha Devolución Esperada</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for prestamo in prestamos_activos %}
+                                <tr>
+                                    <td>{{ prestamo.libro.titulo }}</td>
+                                    <td>{{ prestamo.usuario.username }}</td>
+                                    <td>{{ prestamo.fecha_aprobacion|date:"d/m/Y" }}</td>
+                                    <td>{{ prestamo.fecha_devolucion_esperada|date:"d/m/Y" }}</td>
+                                    <td>
+                                        <span class="badge bg-primary">Activo</span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'prestamos:detalle_prestamo' prestamo.id %}" class="btn btn-sm btn-info">Ver</a>
+                                        {% if request.user.is_admin or request.user.is_superadmin or request.user == prestamo.usuario %}
+                                            <a href="{% url 'prestamos:devolver_prestamo' prestamo.id %}" class="btn btn-sm btn-success">Devolver</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center">No hay préstamos activos.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="pendientes" role="tabpanel">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Libro</th>
+                                <th>Usuario</th>
+                                <th>Fecha Solicitud</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for prestamo in prestamos_pendientes %}
+                                <tr>
+                                    <td>{{ prestamo.libro.titulo }}</td>
+                                    <td>{{ prestamo.usuario.username }}</td>
+                                    <td>{{ prestamo.fecha_solicitud|date:"d/m/Y" }}</td>
+                                    <td>
+                                        <span class="badge bg-warning text-dark">Pendiente</span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'prestamos:detalle_prestamo' prestamo.id %}" class="btn btn-sm btn-info">Ver</a>
+                                        {% if request.user.is_admin or request.user.is_superadmin %}
+                                            <a href="{% url 'prestamos:aprobar_prestamo' prestamo.id %}" class="btn btn-sm btn-success">Aprobar</a>
+                                            <a href="{% url 'prestamos:rechazar_prestamo' prestamo.id %}" class="btn btn-sm btn-danger">Rechazar</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">No hay solicitudes pendientes.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

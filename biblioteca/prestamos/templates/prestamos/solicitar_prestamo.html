@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Solicitar Préstamo{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Solicitar Préstamo</h2>
+    </div>
+    <div class="card-body">
+        <h4>Libro: {{ libro.titulo }}</h4>
+        <p><strong>Autor:</strong> {{ libro.autor }}</p>
+        <p><strong>Editorial:</strong> {{ libro.editorial }}</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Confirmar Solicitud</button>
+            <a href="{% url 'libros:lista' %}" class="btn btn-outline-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
