@@ -45,11 +45,20 @@ class Usuario(AbstractUser, metaclass=AldjemyMeta):
     def __str__(self):
         return f'{self.username} - {self.get_rol_display()}'
 
+    def save(self, *args, **kwargs):
+        # Si el usuario es superusuario, asignar rol SUPERADMINISTRADOR
+        if self.is_superuser:
+            self.rol = 'SUPERADMINISTRADOR'
+        super().save(*args, **kwargs)
+
+    @property
     def is_superadmin(self):
         return self.rol == 'SUPERADMINISTRADOR'
 
+    @property
     def is_admin(self):
         return self.rol == 'ADMINISTRADOR'
 
+    @property
     def is_cliente(self):
         return self.rol == 'CLIENTE'

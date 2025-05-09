@@ -9,7 +9,7 @@ from prestamos.models import Prestamo
 
 @login_required
 def lista_historial(request):
-    if not request.user.is_admin() and not request.user.is_superadmin():
+    if not request.user.rol in ['ADMINISTRADOR', 'SUPERADMINISTRADOR']:
         messages.error(request, 'No tienes permisos para ver el historial.')
         return redirect('usuarios:perfil')
     
@@ -59,7 +59,7 @@ def lista_historial(request):
 
 @login_required
 def historial_por_entidad(request, tipo_entidad, entidad_id):
-    if not request.user.is_admin() and not request.user.is_superadmin():
+    if not request.user.rol in ['ADMINISTRADOR', 'SUPERADMINISTRADOR']:
         messages.error(request, 'No tienes permisos para ver el historial.')
         return redirect('usuarios:perfil')
     

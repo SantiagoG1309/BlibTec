@@ -12,9 +12,25 @@
     </div>
     <div class="card-body">
         <form method="get" action="{% url 'libros:buscar' %}" class="mb-4">
-            <div class="input-group">
-                <input type="text" name="q" class="form-control" placeholder="Buscar por título o autor..." value="{{ request.GET.q }}">
-                <button type="submit" class="btn btn-outline-primary">Buscar</button>
+            <div class="row">
+                <div class="col-md-6 mb-2">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control" placeholder="Buscar por título o autor..." value="{{ query }}">
+                    </div>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <select name="categoria" class="form-select">
+                        <option value="">Todas las categorías</option>
+                        {% for categoria in categorias %}
+                            <option value="{{ categoria.id }}" {% if categoria_seleccionada == categoria.id|stringformat:"s" %}selected{% endif %}>
+                                {{ categoria.nombre }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-primary w-100">Buscar</button>
+                </div>
             </div>
         </form>
 

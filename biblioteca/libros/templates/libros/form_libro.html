@@ -2,7 +2,11 @@
 {% load custom_filters %}
 
 {% block title %}
-    Agregar Libro
+    {% if es_edicion %}
+        Editar Libro
+    {% else %}
+        Agregar Libro
+    {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -10,7 +14,13 @@
     <div class="col-md-8">
         <div class="card">
             <div class="card-header">
-                <h2 class="text-center">Agregar Nuevo Libro</h2>
+                <h2 class="text-center">
+                    {% if es_edicion %}
+                        Editar Libro
+                    {% else %}
+                        Agregar Nuevo Libro
+                    {% endif %}
+                </h2>
             </div>
             <div class="card-body">
                 <form method="post">
@@ -27,7 +37,13 @@
                         </div>
                     {% endfor %}
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">Agregar</button>
+                        <button type="submit" class="btn btn-primary">
+                            {% if es_edicion %}
+                                Actualizar
+                            {% else %}
+                                Agregar
+                            {% endif %}
+                        </button>
                         <a href="{% url 'libros:lista' %}" class="btn btn-outline-secondary">Cancelar</a>
                     </div>
                 </form>

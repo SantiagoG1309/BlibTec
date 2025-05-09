@@ -96,7 +96,7 @@ def perfil_usuario(request):
 
 @login_required
 def lista_usuarios(request):
-    if not request.user.is_superadmin() and not request.user.is_admin():
+    if not request.user.is_superadmin and not request.user.is_admin:
         messages.error(request, 'No tienes permisos para ver esta página.')
         return redirect('usuarios:perfil')
     usuarios = Usuario.objects.all()
@@ -104,12 +104,12 @@ def lista_usuarios(request):
 
 @login_required
 def registrar_admin(request):
-    if not request.user.is_superadmin() and not request.user.is_admin():
+    if not request.user.is_superadmin and not request.user.is_admin:
         messages.error(request, 'No tienes permisos para registrar administradores.')
         return redirect('usuarios:perfil')
 
     if request.method == 'POST':
-        form = RegistroAdminForm(request.POST)
+        form = RegistroAdminForm(request.POST, user=request.user)
         if form.is_valid():
             admin = form.save()
             Historial.registrar_cambio(
@@ -122,5 +122,5 @@ def registrar_admin(request):
             messages.success(request, 'Administrador registrado exitosamente.')
             return redirect('usuarios:lista_usuarios')
     else:
-        form = RegistroAdminForm()
+        form = RegistroAdminForm(user=request.user)
     return render(request, 'usuarios/registrar_admin.html', {'form': form})

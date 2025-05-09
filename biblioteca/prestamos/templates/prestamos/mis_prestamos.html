@@ -34,7 +34,11 @@
                             <td>{{ prestamo.fecha_devolucion_real|date:"d/m/Y H:i"|default:"N/A" }}</td>
                             <td>
                                 {% if prestamo.estado == 'APROBADO' %}
-                                    <a href="{% url 'prestamos:devolver_prestamo' prestamo.id %}" class="btn btn-sm btn-success">Devolver</a>
+                                    {% if request.user.is_admin or request.user.is_superadmin %}
+                                        <a href="{% url 'prestamos:devolver_prestamo' prestamo.id %}" class="btn btn-sm btn-success">Registrar Devolución</a>
+                                    {% else %}
+                                        <span class="badge bg-info">En préstamo</span>
+                                    {% endif %}
                                 {% elif prestamo.estado == 'PENDIENTE' %}
                                     <span class="badge bg-warning text-dark">Esperando aprobación</span>
                                 {% elif prestamo.estado in 'RECHAZADO|VENCIDO|DEVUELTO' %}

@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}
+    Gestionar Categorías
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="text-center">Gestionar Categorías</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="mb-4">
+                        {% csrf_token %}
+                        {% for field in form %}
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                                {{ field.errors }}
+                                {{ field|add_class:"form-control" }}
+                                {% if field.help_text %}
+                                    <div class="form-text">{{ field.help_text }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Guardar Categoría</button>
+                        </div>
+                    </form>
+
+                    <h3 class="mt-4 mb-3">Categorías Existentes</h3>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for categoria in categorias %}
+                                    <tr>
+                                        <td>{{ categoria.nombre }}</td>
+                                        <td>{{ categoria.descripcion|truncatewords:20 }}</td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editarCategoria{{ categoria.id }}">
+                                                    <i class="fas fa-edit"></i> Editar
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#eliminarCategoria{{ categoria.id }}">
+                                                    <i class="fas fa-trash-alt"></i> Eliminar
+                                                </button>
+                                            </div>
+
+                                            <!-- Modal Editar -->
+                                            <div class="modal fade" id="editarCategoria{{ categoria.id }}" tabindex="-1" aria-labelledby="editarCategoriaLabel{{ categoria.id }}" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="editarCategoriaLabel{{ categoria.id }}">Editar Categoría</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <form method="post" action="{% url 'libros:editar_categoria' categoria.id %}">
+                                                            <div class="modal-body">
+                                                                {% csrf_token %}
+                                                                <div class="mb-3">
+                                                                    <label for="nombre{{ categoria.id }}" class="form-label">Nombre</label>
+                                                                    <input type="text" class="form-control" id="nombre{{ categoria.id }}" name="nombre" value="{{ categoria.nombre }}" required>
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label for="descripcion{{ categoria.id }}" class="form-label">Descripción</label>
+                                                                    <textarea class="form-control" id="descripcion{{ categoria.id }}" name="descripcion" rows="3">{{ categoria.descripcion }}</textarea>
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Modal Eliminar -->
+                                            <div class="modal fade" id="eliminarCategoria{{ categoria.id }}" tabindex="-1" aria-labelledby="eliminarCategoriaLabel{{ categoria.id }}" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="eliminarCategoriaLabel{{ categoria.id }}">Confirmar Eliminación</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            ¿Está seguro que desea eliminar la categoría "{{ categoria.nombre }}"?
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                            <form method="post" action="{% url 'libros:eliminar_categoria' categoria.id %}" style="display: inline;">
+                                                                {% csrf_token %}
+                                                                <button type="submit" class="btn btn-danger">Eliminar</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="3" class="text-center">No hay categorías registradas</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

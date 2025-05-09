@@ -1,5 +1,14 @@
 from django import forms
-from .models import Libro
+from .models import Libro, Categoria
+
+class CategoriaForm(forms.ModelForm):
+    class Meta:
+        model = Categoria
+        fields = ['nombre', 'descripcion']
+        widgets = {
+            'descripcion': forms.Textarea(attrs={'rows': 4, 'class': 'form-control'}),
+            'nombre': forms.TextInput(attrs={'class': 'form-control'})
+        }
 
 class LibroForm(forms.ModelForm):
     class Meta:
@@ -11,12 +20,15 @@ class LibroForm(forms.ModelForm):
             'año_publicacion',
             'descripcion',
             'cantidad_total',
+            'categoria'
         ]
         widgets = {
             'descripcion': forms.Textarea(attrs={'rows': 4, 'class': 'form-control'}),
+            'categoria': forms.Select(attrs={'class': 'form-control'})
         }
         labels = {
             'cantidad_total': 'Cantidad disponible para préstamo',
+            'categoria': 'Categoría del libro'
         }
 
     def __init__(self, *args, **kwargs):

@@ -105,8 +105,8 @@ def rechazar_prestamo(request, prestamo_id):
 @login_required
 def devolver_prestamo(request, prestamo_id):
     prestamo = get_object_or_404(Prestamo, id=prestamo_id)
-    if not (request.user.is_admin or request.user.is_superadmin or request.user == prestamo.usuario):
-        messages.error(request, 'No tienes permisos para devolver este préstamo.')
+    if not (request.user.is_admin or request.user.is_superadmin):
+        messages.error(request, 'Solo los administradores pueden registrar devoluciones.')
         return redirect('libros:lista')
 
     if prestamo.devolver():
